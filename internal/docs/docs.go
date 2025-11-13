@@ -269,7 +269,7 @@ const docTemplate = `{
         },
         "/items": {
             "get": {
-                "description": "Retrieve a list of all items",
+                "description": "Retrieve a list of all items, optionally filtered by category, expiry, or expiring soon",
                 "produces": [
                     "application/json"
                 ],
@@ -277,6 +277,26 @@ const docTemplate = `{
                     "items"
                 ],
                 "summary": "Get all items",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter expired items only",
+                        "name": "expired",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter items expiring within N days",
+                        "name": "expiring_within",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

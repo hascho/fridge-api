@@ -31,7 +31,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Accept json
 // @Produce json
 // @Param item body CreateItemRequest true "Item to create"
-// @Success 201 {object} Item
+// @Success 201 {object} item.Item
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /items [post]
@@ -71,14 +71,37 @@ func (h *Handler) Create(c *gin.Context) {
 
 // GetAll godoc
 // @Summary Get all items
-// @Description Retrieve a list of all items
+// @Description Retrieve a list of all items, optionally filtered by category, expiry, or expiring soon
 // @Tags items
 // @Produce json
-// @Success 200 {array} Item
+// @Param category_id query int false "Filter by category ID"
+// @Param expired query bool false "Filter expired items only"
+// @Param expiring_within query int false "Filter items expiring within N days"
+// @Success 200 {array} item.Item
 // @Failure 500 {object} map[string]string
 // @Router /items [get]
 func (h *Handler) GetAll(c *gin.Context) {
-	items, err := h.service.GetAll()
+	var filters ItemFilters
+
+	if categoryIDStr := c.Query("category_id"); categoryIDStr != "" {
+		if id, err := strconv.Atoi(categoryIDStr); err == nil {
+			idUint := uint(id)
+			filters.CategoryID = &idUint
+		}
+	}
+
+	if expiredStr := c.Query("expired"); expiredStr != "" {
+		expired := expiredStr == "true"
+		filters.Expired = &expired
+	}
+
+	if expiringWithinStr := c.Query("expiring_within"); expiringWithinStr != "" {
+		if days, err := strconv.Atoi(expiringWithinStr); err == nil {
+			filters.ExpiringWithin = &days
+		}
+	}
+
+	items, err := h.service.GetAll(filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -92,7 +115,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Tags items
 // @Produce json
 // @Param id path int true "Item ID"
-// @Success 200 {object} Item
+// @Success 200 {object} item.Item
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -115,7 +138,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Item ID"
 // @Param item body UpdateItemRequest true "Item fields to update"
-// @Success 200 {object} Item
+// @Success 200 {object} item.Item
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string

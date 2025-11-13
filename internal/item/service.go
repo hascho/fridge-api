@@ -4,7 +4,7 @@ import "errors"
 
 type Service interface {
 	Create(item *Item) error
-	GetAll() ([]Item, error)
+	GetAll(filters ItemFilters) ([]Item, error)
 	GetById(id uint) (*Item, error)
 	Update(item *Item) error
 	Delete(id uint) error
@@ -28,8 +28,8 @@ func (s *service) Create(item *Item) error {
 	return s.repo.Create(item)
 }
 
-func (s *service) GetAll() ([]Item, error) {
-	return s.repo.GetAll()
+func (s *service) GetAll(filters ItemFilters) ([]Item, error) {
+	return s.repo.GetAll(filters)
 }
 
 func (s *service) GetById(id uint) (*Item, error) {

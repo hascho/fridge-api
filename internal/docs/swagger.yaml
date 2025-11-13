@@ -262,7 +262,21 @@ paths:
       - categories
   /items:
     get:
-      description: Retrieve a list of all items
+      description: Retrieve a list of all items, optionally filtered by category,
+        expiry, or expiring soon
+      parameters:
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Filter expired items only
+        in: query
+        name: expired
+        type: boolean
+      - description: Filter items expiring within N days
+        in: query
+        name: expiring_within
+        type: integer
       produces:
       - application/json
       responses:
