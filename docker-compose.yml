@@ -1,13 +1,16 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: ${APP_ENV:-prod}
     container_name: go-fridge-api
-    depends_on:
-      - db
-    ports:
-      - "8080:8080"
     env_file:
       - .env
+    ports:
+      - "8080:8080"
+      - "40000:40000" # expose for delve debugging (only used if debug build)
+    depends_on:
+      - db    
     networks:
       - fridge-network
 
@@ -15,9 +18,9 @@ services:
     image: postgres:16
     container_name: fridge-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fridge
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
