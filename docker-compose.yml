@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: go-fridge-api
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - fridge-network
+
+  db:
+    image: postgres:16
+    container_name: fridge-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fridge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fridge-network
+
+volumes:
+  postgres_data: {}
+
+networks:
+  fridge-network:
+    driver: bridge
